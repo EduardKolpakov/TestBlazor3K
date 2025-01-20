@@ -1,0 +1,96 @@
+﻿/* Основные стили для страницы */
+body {
+    background: linear-gradient(135deg, #1e3c72, #2a5298); /* Новый градиентный фон */
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* Контейнер для формы */
+.login-container {
+    background: rgba(255, 255, 255, 0.95); /* Полупрозрачный белый фон */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 350px; /* Уменьшили максимальную ширину */
+    text-align: center;
+}
+
+/* Заголовок */
+h3 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 22px; /* Уменьшили размер шрифта */
+}
+
+/* Группы полей */
+.form-group {
+    margin-bottom: 15px; /* Уменьшили отступ */
+    text-align: left;
+}
+
+/* Лейблы */
+label {
+    display: block;
+    margin-bottom: 5px;
+    color: #555;
+    font-size: 14px;
+}
+
+/* Поля ввода */
+.form-control {
+    width: 100%;
+    padding: 8px; /* Уменьшили padding */
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+    .form-control:focus {
+        border-color: #1e3c72;
+        outline: none;
+        box-shadow: 0 0 5px rgba(30, 60, 114, 0.5);
+    }
+
+/* Кнопка */
+.btn-primary {
+    width: 100%;
+    padding: 10px;
+    background-color: #1e3c72;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+    .btn-primary:hover {
+        background-color: #2a5298;
+    }
+
+/* Сообщения об ошибках */
+.validation-message {
+    color: #ff4757;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+    .login-container {
+        padding: 15px;
+    }
+
+    h3 {
+        font-size: 20px;
+    }
+
+    .btn-primary {
+        font-size: 14px;
+    }
+}

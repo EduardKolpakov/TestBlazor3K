@@ -1,0 +1,66 @@
+﻿@page "/login"
+
+@using System.ComponentModel.DataAnnotations;
+@using Microsoft.AspNetCore.Components.Forms;
+@using TestBlazor3K.ApiRequest;
+@using TestBlazor3K.ApiRequest.Model;
+
+<link href="login.css" rel="stylesheet" />
+
+@using Microsoft.AspNetCore.Components
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<div class="login-container">
+    <h3>Авторизация</h3>
+
+    <EditForm Model="@loginModel" OnValidSubmit="HandleLogin" FormName="AuthorizationForm">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="username">Имя пользователя:</label>
+            <input id="username" class="form-control" @bind="@loginModel.Username" />
+        </div>
+
+        <div class="form-group">
+            <label for="password">Пароль:</label>
+            <input id="password" type="password" class="form-control" @bind="@loginModel.Password" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Войти</button>
+    </EditForm>
+
+    <div class="register-container">
+        <p>Нет аккаунта? <button class="btn btn-link" onclick="@NavigateToRegister">Зарегистрироваться</button></p>
+    </div>
+</div>
+
+@code {
+
+    private LoginModel loginModel = new LoginModel();
+    private bool showRegisterModal = false;
+
+    [Inject] private ApiRequestService ApiRequest { get; set; }
+
+    private async void HandleLogin()
+    {
+        var cur = await ApiRequest.AuthorizationServ(loginModel.Username, loginModel.Password);
+        if (cur != null)
+        {
+            UserSingletone.InitUser(cur);
+            Navigation.NavigateTo("/counter");
+        }
+    }
+
+    private void NavigateToRegister()
+    {
+        Navigation.NavigateTo("/register");
+    }
+
+    public class LoginModel
+    {
+        public string Username { get; set; }
+        public string Password { get; set; }
+    }
+}

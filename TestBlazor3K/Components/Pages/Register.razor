@@ -1,0 +1,55 @@
+﻿@using TestBlazor3K.ApiRequest.Services;
+@using TestBlazor3K.ApiRequest;
+@rendermode InteractiveServer
+
+@page "/register"
+
+
+<h1>Регистрация</h1>
+
+<EditForm Model="@registrationData" OnValidSubmit="RegisterUserAsync" FormName="Registraciya">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label>Логин:</label>
+        <input @bind="@registrationData.Login" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Пароль:</label>
+        <input type="password" @bind="@registrationData.Password" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Имя пользователя:</label>
+        <input @bind="@registrationData.Name" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Описание:</label>
+        <input @bind="@registrationData.Description" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+</EditForm>
+
+@code {
+
+    [Inject] private ApiRequestService ApiRequest { get; set; }
+
+    private CreateNewUserAndLogin registrationData = new CreateNewUserAndLogin();
+
+    private async Task<ApiResponse> RegisterUserAsync()
+    {
+        var response = await ApiRequest.RegisterUser(registrationData);
+
+        if (!response.status)
+        {
+            return response;
+        }
+
+        else{
+            return response;
+        }
+    }
+}

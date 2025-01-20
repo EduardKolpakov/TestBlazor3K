@@ -1,0 +1,274 @@
+﻿@page "/counter"
+@using TestBlazor3K.ApiRequest
+@using TestBlazor3K.ApiRequest.Model
+@rendermode InteractiveServer
+
+<PageTitle>Users list</PageTitle>
+
+@if (!isAuthenticated)
+{
+    <h3>Вы не авторизованы</h3>
+    <p>Пожалуйста, войдите в систему, чтобы получить доступ.</p>
+}
+else if (!isAdmin)
+{
+    <h3>Доступ ограничен</h3>
+    <p>У вас нет прав для просмотра этой страницы.</p>
+}
+else
+{
+    <h1>Список пользователей</h1>
+
+    <p class="text-center fw-bold mb-5 mx-1 mx-md-4 mt-4">
+        <table class="table table-bordered">
+            <thead class="alert-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Desc</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (users == null)
+                {
+                    <tr>
+                        <td colspan="5" class="text-center">Загрузка...</td>
+                    </tr>
+                }
+                else if (!users.Any())
+                {
+                    <tr>
+                        <td colspan="5" class="text-center">Пользователи не найдены</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var user in users)
+                    {
+                        <tr>
+                            <td>@user.id_User</td>
+                            <td>@user.Name</td>
+                            <td>@user.Descrioption</td>
+                            <td>@(user.id_Role == 1 ? "Admin" : "User")</td>
+                            <td>
+                                <button class="btn btn-warning" @onclick="() => EditUser(user)">Edit</button>
+                                <button class="btn btn-danger" @onclick="() => DeleteUser(user.id_User)">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </p>
+
+    <h1>Добавление нового пользователя</h1>
+
+    <div class="d-flex align-items-center h-custom-2 px-5 ms-xl-4 mt-5 pt-5 pt-xl-0 mt-xl-n5">
+        <form style="width: 23rem;">
+            <div class="form-outline mb-4">
+                <label class="form-label" for="login">Login</label>
+                <input type="text" @bind="@reqDataUser.Login" id="login" class="form-control form-control-lg" />
+            </div>
+            <div class="form-outline mb-4">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" @bind="@reqDataUser.Password" id="password" class="form-control form-control-lg" />
+            </div>
+            <div class="form-outline mb-4">
+                <label class="form-label" for="name">Name</label>
+                <input type="text" @bind="@reqDataUser.Name" id="name" class="form-control form-control-lg" />
+            </div>
+            <div class="form-outline mb-4">
+                <label class="form-label" for="description">Description</label>
+                <input type="text" @bind="@reqDataUser.Description" id="description" class="form-control form-control-lg" />
+            </div>
+            <div class="pt-1 mb-4">
+                <button class="btn btn-info btn-lg btn-block" @onclick="AddNewUser" type="button">Add</button>
+            </div>
+        </form>
+    </div>
+
+
+    @if (isEditing)
+
+    {
+        <h2>Редактирование пользователя</h2>
+        <div class="d-flex align-items-center h-custom-2 px-5 ms-xl-4 mt-5 pt-5 pt-xl-0 mt-xl-n5">
+            <form style="width: 23rem;">
+                <div class="form-outline mb-4">
+                    <label class="form-label" for="edit-name">Name</label>
+                    <input type="text" @bind="@editingUser.Name" id="edit-name" class="form-control form-control-lg" />
+                </div>
+                <div class="form-outline mb-4">
+                    <label class="form-label" for="edit-description">Description</label>
+                    <input type="text" @bind="@editingUser.Descrioption" id="edit-description" class="form-control form-control-lg" />
+                </div>
+                <div class="form-outline mb-4">
+                    <label class="form-label" for="edit-role">Role</label>
+                    <select @bind="@editingUser.id_Role" id="edit-role" class="form-select">
+                        <option value="1">Admin</option>
+                        <option value="2">User</option>
+                    </select>
+                </div>
+                <div class="pt-1 mb-4">
+                    <button class="btn btn-success btn-lg btn-block" @onclick="SaveUserChanges" type="button">Save</button>
+                    <button class="btn btn-danger btn-lg btn-block" @onclick="CancelEdit" type="button">Cancel</button>
+                </div>
+            </form>
+        </div>
+    }
+}
+
+@code {
+
+    private List<UserDataShort> users;
+
+    private ReqDataUser reqDataUser = new ReqDataUser();
+
+    private bool isEditing = false;
+
+    private UserDataShort editingUser;
+
+
+
+    private bool isAuthenticated;
+
+    private bool isAdmin;
+
+
+
+    private CurUser curUser;
+
+
+
+    [Inject] private ApiRequestService ApiRequest { get; set; }
+
+
+
+    protected override async Task OnInitializedAsync()
+
+    {
+
+        curUser = UserSingletone.GetUser();
+
+
+
+        isAuthenticated = curUser != null;
+
+        isAdmin = curUser?.id_Role == 1;
+
+
+
+        if (isAuthenticated && isAdmin)
+
+        {
+
+            await getAllUsers();
+
+        }
+
+    }
+
+
+
+    private async Task getAllUsers()
+
+    {
+
+        var userData = await ApiRequest.GetAllUsersAsync();
+
+        users = userData?.data?.users ?? new List<UserDataShort>();
+
+
+
+        StateHasChanged();
+
+    }
+
+
+
+    private async void AddNewUser()
+
+    {
+
+        var reqAddUserData = await ApiRequest.AddNewUser(reqDataUser);
+
+
+
+        if (!reqAddUserData.status) return;
+
+        await getAllUsers();
+
+    }
+
+
+
+    private void EditUser(UserDataShort user)
+
+    {
+
+        isEditing = true;
+
+        editingUser = new UserDataShort
+            {
+                id_User = user.id_User,
+                Name = user.Name,
+                Descrioption = user.Descrioption,
+                id_Role = user.id_Role
+            };
+
+    }
+
+
+
+    private async void SaveUserChanges()
+
+    {
+
+        var updatedUser = await ApiRequest.UpdateUser(editingUser);
+
+
+
+        if (updatedUser != null)
+
+        {
+
+            await getAllUsers();
+
+            isEditing = false;
+
+        }
+
+    }
+
+
+
+    private void CancelEdit()
+
+    {
+
+        isEditing = false;
+
+    }
+
+
+
+    private async void DeleteUser(int userId)
+
+    {
+
+        var response = await ApiRequest.DeleteUser(userId);
+
+
+
+        if (response.status)
+
+        {
+
+            await getAllUsers();
+
+        }
+
+    }
+}

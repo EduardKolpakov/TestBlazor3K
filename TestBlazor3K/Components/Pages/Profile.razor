@@ -1,0 +1,75 @@
+﻿@page "/profile"
+@using System.ComponentModel.DataAnnotations
+@using TestBlazor3K.ApiRequest
+@rendermode InteractiveServer
+@inject NavigationManager Navigate;
+
+
+<PageTitle>Личный кабинет</PageTitle>
+
+<h3>Личный кабинет</h3>
+
+<div class="profile-container">
+    <div class="form-group">
+        <label for="name">Имя:</label>
+        <input id="name" @bind="User.Name" class="form-control" disabled />
+    </div>
+    <div class="form-group">
+        <label for="description">Описание:</label>
+        <textarea id="description" @bind="User.Description" class="form-control" rows="3" disabled></textarea>
+    </div>
+</div>
+
+<div>
+    <button class="btn btn-danger" @onclick="leaveAcc" type="button">Выйти</button>
+</div>
+
+@code {
+
+    private UserModel User;
+    protected override void OnInitialized()
+    {
+        try
+        {
+            if (UserSingletone.us != null)
+            {
+                User = new UserModel
+                    {
+                        Name = UserSingletone.us.name ?? "Имя не указано",
+                        Description = UserSingletone.us.descrioption ?? "Описание не указано"
+                    };
+            }
+            else
+            {
+                Console.WriteLine("UserSingletone.us не инициализирован.");
+                User = new UserModel
+                    {
+                        Name = "Неизвестный пользователь",
+                        Description = "Описание недоступно"
+                    };
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при инициализации: {ex.Message}");
+            User = new UserModel
+                {
+                    Name = "Неизвестный пользователь",
+                    Description = "Описание недоступно"
+                };
+        }
+    }
+    public void leaveAcc()
+    {
+        UserSingletone.exitUser();
+        Navigate.NavigateTo("/login");
+    }
+
+    public class UserModel
+    {
+        [Required]
+        public string Name { get; set; }
+
+        public string Description { get; set; }
+    }
+}
